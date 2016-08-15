@@ -1,8 +1,8 @@
 # kidsControl
 
-small node.js server to lock the computer and take screenshots
-
-I'm doing this project to practice some node.js, so every fork, pull request or comment is important
+small python server to check what the kids are doing in their computer.
+the server will be module based, for now I want it to have : lock the computer and take screenshots
+I'm doing this project to practice some python, so every fork, pull request or comment is important
 
 #INSTALL
 
@@ -28,3 +28,5 @@ run with pm2 nodemon of bin/www
 4. create default values file so you can set locals if the server is down
 
 5. fix README
+
+6. add module options
