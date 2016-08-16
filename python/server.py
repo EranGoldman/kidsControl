@@ -6,17 +6,30 @@ from os import curdir, listdir, path
 PORT_NUMBER = 8000
 
 DEFAULTHEADER = '''
-                <!DOCTYPE html>
-                <head>
-                <meta charset="UTF-8">
-                <title>Title of the document</title>
-                </head>
-                <body>
-                '''
+    <!DOCTYPE html>
+    <head>
+    <meta charset="UTF-8">
+    <title>Title of the document</title>
+    <link rel="stylesheet" type="text/css" href="public/css/bootstrap.min.css">
+    </head>
+    <body>
+    '''
 DEFAULTFOOTER = '''
                 </body>
+                <script src="public/js/jquery-3.1.0.min.js"></script>
+                <script src="public/js/bootstrap.min.js"></script>
                 </html>
                 '''
+ROWSTART = '''
+    <div class="row">
+    '''
+ROWEND = '''
+    </div>
+    '''
+WIDGETSTART = '''
+    <div class="col-md-4">
+    '''
+WIDGETEND = '''</div>'''
 
 
 # This class will handles any incoming request from
@@ -30,17 +43,53 @@ class myHandler(BaseHTTPRequestHandler):
 
     def build_index(self):
         """Build the default index."""
+        widgetCounter = 0
         index = DEFAULTHEADER
         modulesList = ""
         modulesDir = path.join(curdir, 'modules')
+        modulesList += ROWSTART
         for fname in listdir(modulesDir):
             fpath = path.join(modulesDir, fname)
             if not path.isdir(fpath):
                 continue
             else:
-                modulesList += "<li>" + fname + "</li>"
+                modulesList += WIDGETSTART
+                modulesList += "<h2>" + fname + "</h2>"
+                mod = __import__(fname + "widget.py")
+                modulesList += mod.screenshot.getWidgetHtml()
+                modulesList += WIDGETEND
+                widgetCounter += 1
+                if widgetCounter == 3:
+                    modulesList += ROWEND + ROWSTART
+                    widgetCounter = 0
+        modulesList += ROWEND
         index += "<ol>" + modulesList + "</ol>"
         index += DEFAULTFOOTER
+        return index
+
+    def get_mime(self):
+        """Get the mime of the path."""
+        if self.path.endswith(".html"):
+            return 'text/html'
+        if self.path.endswith(".jpg"):
+            return 'image/jpg'
+        if self.path.endswith(".gif"):
+            return 'image/gif'
+        if self.path.endswith(".js"):
+            return 'application/javascript'
+        if self.path.endswith(".css"):
+            return 'text/css'
+        else:
+            return 'text/html'
+
+    def get_public_file(self):
+        """Get the file from public folder."""
+        index = ""
+        pubFile = "." + self.path
+        if path.isfile(pubFile):
+            f = open(pubFile)
+            index = f.read()
+            f.close()
         return index
 
     # Handler for the GET requests
@@ -48,9 +97,13 @@ class myHandler(BaseHTTPRequestHandler):
         """Handler for the GET requests."""
         html = 'Ooops something went wrong - \
                 please contact <a href="mailto:erangoldman@gmail.com">Eran</a>'
+
+        """Router implementation."""
         if self.path == "/" or self.path == "/index.html":
             self.path = "/index.html"
             html = self.build_index()
+        elif "/public" == self.path[:7]:
+                html = self.get_public_file()
         else:
             html = self.get_module()
 
@@ -58,34 +111,14 @@ class myHandler(BaseHTTPRequestHandler):
             # Check the file extension required and
             # set the right mime type
 
-            sendReply = False
-            if self.path.endswith(".html"):
-                mimetype = 'text/html'
-                sendReply = True
-            if self.path.endswith(".jpg"):
-                mimetype = 'image/jpg'
-                sendReply = True
-            if self.path.endswith(".gif"):
-                mimetype = 'image/gif'
-                sendReply = True
-            if self.path.endswith(".js"):
-                mimetype = 'application/javascript'
-                sendReply = True
-            if self.path.endswith(".css"):
-                mimetype = 'text/css'
-                sendReply = True
-            else:
-                mimetype = 'text/html'
-                sendReply = True
-
-            if sendReply is True:
-                # Open the static file requested and send it
-                # f = open(curdir + sep + self.path)
-                self.send_response(200)
-                self.send_header('Content-type', mimetype)
-                self.end_headers()
-                self.wfile.write(html)  # f.read())
-                #  f.close()
+            # Open the static file requested and send it
+            # f = open(curdir + sep + self.path)
+            mimetype = self.get_mime()
+            self.send_response(200)
+            self.send_header('Content-type', mimetype)
+            self.end_headers()
+            self.wfile.write(html)  # f.read())
+            #  f.close()
             return
 
         except IOError:

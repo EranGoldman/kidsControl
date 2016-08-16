@@ -11,8 +11,7 @@ def screenshot():
     file_name = datetime.datetime.now().strftime('%H-%M-%S') + '.png'
     # print (folder_name)
     # print(file_name)
-    directory = os.path.join(os.path.dirname(os.getcwd()), 'nodeServer',
-                             'public', 'images', 'screenshots')
+    directory = os.path.join(os.curdir, 'screenshots')
     # print(directory)
     # folder_name)
     # if os.path.exists(directory):
