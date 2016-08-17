@@ -10,7 +10,7 @@ DEFAULTHEADER = '''
     <!DOCTYPE html>
     <head>
     <meta charset="UTF-8">
-    <title>Title of the document</title>
+    <title>Kids control 0.1</title>
     <link rel="stylesheet" type="text/css" href="public/css/bootstrap.min.css">
     </head>
     <body>
