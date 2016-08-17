@@ -2,6 +2,7 @@
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, listdir, path
+import importlib
 
 PORT_NUMBER = 8000
 
@@ -55,8 +56,10 @@ class myHandler(BaseHTTPRequestHandler):
             else:
                 modulesList += WIDGETSTART
                 modulesList += "<h2>" + fname + "</h2>"
-                mod = __import__(fname + "widget.py")
-                modulesList += mod.screenshot.getWidgetHtml()
+                mod = importlib.import_module('modules.' + fname + '.base')
+                mod_class = getattr(mod, fname)
+                klass = mod_class()
+                modulesList += klass.getWidget()
                 modulesList += WIDGETEND
                 widgetCounter += 1
                 if widgetCounter == 3:
