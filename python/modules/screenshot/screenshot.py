@@ -8,10 +8,10 @@ import os
 def screenshot():
     """Take a screenshot."""
     # folder_name = datetime.date.today().strftime('%Y-%m-%d')
-    file_name = datetime.datetime.now().strftime('%H-%M-%S') + '.png'
+    file_name = datetime.datetime.now().strftime('%Y%m%d-%H-%M-%S') + '.png'
     # print (folder_name)
     # print(file_name)
-    directory = os.path.join(os.curdir, 'screenshots')
+    directory = os.path.join('./public/modules/screenshots')
     # print(directory)
     # folder_name)
     # if os.path.exists(directory):
@@ -36,4 +36,4 @@ def screenshot():
 
     return (file_name)
 
-print(screenshot())
+# print(screenshot())

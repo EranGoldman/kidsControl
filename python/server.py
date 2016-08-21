@@ -2,6 +2,7 @@
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, listdir, path
+from urlparse import urlparse, parse_qs
 import importlib
 
 PORT_NUMBER = 8000
@@ -40,7 +41,24 @@ class myHandler(BaseHTTPRequestHandler):
 
     def get_module(self):
         """Build the module page."""
-        return "ok"
+        # modulesDir = path.join(curdir, 'modules')
+        index = DEFAULTHEADER
+        modulesDir = path.join(curdir, 'modules')
+        module = ((self.path[1:]).split('/')[0]).split("?")[0]
+        if module in listdir(modulesDir):
+            mod = importlib.import_module('modules.' + module + '.base')
+            mod_class = getattr(mod, module)
+            klass = mod_class()
+            urlVars = parse_qs(urlparse(self.path).query)
+            if 'action' in urlVars:
+                index += klass.getPage(urlVars['action'][0])
+            else:
+                index += klass.getPage()
+        else:
+            index += "Unknown module.<br>"
+            index += " <a href='index.html'> Return to home page </a>"
+        index += DEFAULTFOOTER
+        return index
 
     def build_index(self):
         """Build the default index."""
@@ -55,18 +73,20 @@ class myHandler(BaseHTTPRequestHandler):
                 continue
             else:
                 modulesList += WIDGETSTART
-                modulesList += "<h2>" + fname + "</h2>"
+                modulesList += "<h2><a href='"+fname + "'>"
+                modulesList += str.upper(fname) + "</a></h2>"
                 mod = importlib.import_module('modules.' + fname + '.base')
                 mod_class = getattr(mod, fname)
                 klass = mod_class()
-                modulesList += klass.getWidget()
+                urlVars = parse_qs(urlparse(self.path).query)
+                modulesList += klass.getWidget(urlVars)
                 modulesList += WIDGETEND
                 widgetCounter += 1
                 if widgetCounter == 3:
                     modulesList += ROWEND + ROWSTART
                     widgetCounter = 0
         modulesList += ROWEND
-        index += "<ol>" + modulesList + "</ol>"
+        index += modulesList
         index += DEFAULTFOOTER
         return index
 
@@ -89,6 +109,7 @@ class myHandler(BaseHTTPRequestHandler):
         """Get the file from public folder."""
         index = ""
         pubFile = "." + self.path
+        pubFile = pubFile.split('?')[0]
         if path.isfile(pubFile):
             f = open(pubFile)
             index = f.read()
@@ -102,12 +123,17 @@ class myHandler(BaseHTTPRequestHandler):
                 please contact <a href="mailto:erangoldman@gmail.com">Eran</a>'
 
         """Router implementation."""
-        if self.path == "/" or self.path == "/index.html":
-            self.path = "/index.html"
+        if self.path == "/" or "index.html" in self.path:
+            # self.path = "/index.html"
             html = self.build_index()
-        elif "/public" == self.path[:7]:
+        elif "/public" in self.path[:7]:
                 html = self.get_public_file()
         else:
+            if "action" not in self.path:
+                if "?" in self.path:
+                    self.path += "&action=None"
+                else:
+                    self.path += "?action=None"
             html = self.get_module()
 
         try:
