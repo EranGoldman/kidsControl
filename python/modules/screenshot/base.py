@@ -9,14 +9,15 @@ class screenshot:
 
     def getFiles(self):
         """Get the file list."""
-        scDir = os.path.join(os.getcwd(), 'public','modules','screenshots')
+        scDir = os.path.join(os.getcwd(), 'public', 'modules', 'screenshots')
         return os.listdir(scDir)
 
     def get_last_file(self):
         """Get last file."""
         scDir = os.path.join(os.getcwd(), 'public', 'modules', 'screenshots')
-        files = [(scDir + x) for x in os.listdir(scDir) if x.endswith(".png")]
-        return max(files, key=os.path.getctime)
+        files = [(os.path.join(scDir, x)) for x in os.listdir(scDir) if x.endswith(".png")]
+        last_file = max(files, key=os.path.getctime).split("\\")[-1]
+        return str(last_file)
 
     def takeScreenshot(self):
         """Take a screenshot."""
@@ -49,7 +50,7 @@ class screenshot:
         html = ""
         if (len(scFiles) > 1):
             newest = self.get_last_file()
-            html += "<img src='" + newest[2:]
+            html += "<img src='public/modules/screenshots/" + newest
             html += "' width='90%'><br>"
         else:
             html += "<p> Folder has no images</p>"
