@@ -1,4 +1,5 @@
 """Screenshots widget."""
+import sys
 
 
 class default:
@@ -14,4 +15,7 @@ class default:
 
     def getPage(self, urlParameters=None):
         """Get the page."""
+        if "restart" in urlParameters:
+            if urlParameters['restart']=="now":
+                os.execl('server','server')
         return "default - OK"
