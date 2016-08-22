@@ -2,7 +2,7 @@
 
 small python server to check what the kids are doing in their computer.
 the server will be module based, for now I want it to have : lock the computer and take screenshots
-I'm doing this project to practice some python, so every fork, pull request or comment is important
+I'm doing this project to practice some python, so every fork, pull request or comment is helpful :-)
 
 #INSTALL
 
